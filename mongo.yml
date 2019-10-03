@@ -1,0 +1,8 @@
+db: db
+collections:
+  conn: conn_log
+  cmds: cmd_log
+  leaderboard: leaderboard
+  book_requests: book_requests
+hostname: localhost
+port: 27017
