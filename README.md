@@ -22,20 +22,20 @@ Onto building the image.  Assuming you have Docker installed on your system, the
 can be built with the following command:
 
 ```
-docker build --build-arg GIT_FORK=https://your.fork.url.git -t snhubot_image .
+docker build -t snhubot_image .
 ```
 
-Please be sure to populate the `GIT_FORK` argument with **your own fork's clone URL**. 
-This argument is used to clone the repository into the image.  As such, do not clone 
-the primary repository from the SNHU Coders group.  You will not be allowed to publish
-changes directly to that repository.
-
-The building process will take quite a while because there is a lot going on.  When
-that is finished, the container can be built with the following command:
+Once the image is built, we need to run the container. This is done with the following command:
 
 ```
-docker run --privileged -d -p 27017:27017 --name noob_snhubot snhubot_image
+docker run --privileged -d -p 27017:27017 -v /path/to/repo:/home/ubuntu/noob_snhubot --name noob_snhubot snhubot_image
 ```
+
+The `/path/to/repo` portion of that command is something you will need to change.  It should be the path 
+to a forked repository you have on your own machine. In other words, your local copy of the Noob_SNHUbot repository
+will get mounted as a volume in the container.  This is done so you can still edit the code on your own machine
+and run it through the Docker container.  Otherwise, you would be stuck editing the code with one of the editors
+included in the image.
 
 ### Running
 
@@ -53,5 +53,7 @@ docker exec --user ubuntu -it noob_snhubot /bin/bash
 
 ### Known Issues / Potential Improvements
 
-1. It may be easier overall to handle Slack tokens with environment variables.  Only time will tell.
-2. Currently, the required Python packages are installed via the cloned repository's `requirements.txt` file.  However, the file used is in the master branch.  Thus, if other branches have updated requirements files, the newer packages will not be installed.
+1. Due to the current configuration, tokens and other config options must be given through config files.  Environment variables can be set, but
+there is currently no need for that.
+2. The list of required Python packages is obtained from the `master` branch of the snhu-coders/noob_snhubot repository.  Because of this,
+the package list may be out of date relative to newer branches.

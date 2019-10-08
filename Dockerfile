@@ -2,8 +2,6 @@ FROM ubuntu:18.04
 
 SHELL ["/bin/bash", "-c"]
 
-ARG GIT_FORK
-
 # update the repo base and upgrade
 # whatever needs it
 RUN apt-get update -y
@@ -17,7 +15,10 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get install -y sudo make build-essential libssl-dev zlib1g-dev \
 libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev \
 libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python-openssl \
-git mongodb
+git mongodb vim nano
+
+# Copy the Mongo config
+COPY mongodb.conf /.mongodb.conf
 
 # Install Chrome for Selenium
 COPY google-chrome-stable_current_amd64.deb /chrome.deb
@@ -51,14 +52,9 @@ ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 RUN pyenv install 3.6.8
 RUN pyenv global 3.6.8
 
-RUN git clone ${GIT_FORK} ~/noob_snhubot
-#RUN mkdir ~/noob_snhubot/cfg
-COPY mongo.yml /home/ubuntu/noob_snhubot/cfg/mongo.yml
-COPY slack.yml /home/ubuntu/noob_snhubot/cfg/slack.yml
-WORKDIR /home/ubuntu/noob_snhubot
-RUN pip install -r requirements.txt
+RUN pip install -r https://raw.githubusercontent.com/snhu-coders/noob_snhubot/master/requirements.txt 
 
 USER root
 COPY subjects.bson /subjects.bson
 
-CMD ["/usr/bin/mongod", "--config", "/etc/mongodb.conf"]
+CMD ["/usr/bin/mongod", "--config", "/.mongodb.conf", "--bind_ip_all"]
